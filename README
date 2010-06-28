@@ -1,0 +1,17 @@
+CLLocationManager_sim is a subclass of CLLocationManager from the iphone SDK 4.0.  This subclass provides a simulation of location services when running on the iPhone Simulator on MacOSX.  The iPHone Simulator does not provide any complex emulation of a GPS on the iPhone, it just reports a fixed location (Cupertino) and that's it.  This simulator can provide a timed sequence of locations with varying accuracy, position and altitude by using preprogrammed scenarios.
+
+When compiled for a real iOS device the subclass's simulation code is removed and you get all the original functionality from the SDK's CLLocationManager class. There is no need to remove the subclass from your code unless you prefer.
+
+The usual way to use this simulator is to replace your alloc/init calls as follows:
+
+  #import <CoreLocation/CoreLocation.h>
+
+  locationManager = [[CLLocationManager alloc] init];
+
+gets replaced by:
+
+  #import "CLLocationManager_sim.h"
+
+  locationManager = [[CLLocationManager_sim alloc] init];
+
+That's it, now use the locationManager in the usual way.
