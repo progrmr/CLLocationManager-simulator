@@ -40,10 +40,7 @@ static const SimStateUpdateType simStateUpdates[] = {
 	// Scenario: initial state will indicate no valid data and
 	//           valid data will appear a few seconds later and
 	//           accuracy will improve over the next minute
-	{ simHorizontalAccuracy, ACCURACY_INVALID, 0.0 },
-	{ simVerticalAccuracy,   ACCURACY_INVALID, 0.0 },
-	
-	// now provide a location but with low accuracy
+	// provide a location but with low accuracy
 	{ simHorizontalAccuracy, 1200,  3.0 },	// Got a location via cell triangulation
 	{ simLatitude,           33.1,  3.0 },	// latitude of Escondido
 	{ simLongitude,        -117.1,  3.0 },	// longitude of Escondido
@@ -70,11 +67,12 @@ static const SimStateUpdateType simStateUpdates[] = {
 	{ simTimestamp,         -3600,  0.0 },  // simulate cached data, 3600 seconds old
 	
 	// now provide a location but with low accuracy
-	{ simHorizontalAccuracy, -1 /*1000*/,  3.0 },	// cell triangulation accuracy
+	{ simHorizontalAccuracy, 1000,  3.0 },	// cell triangulation accuracy
 	{ simVerticalAccuracy,     -1,  3.0 },  // no altitude data now
 	{ simAltitude,             -1,  3.0 },  // no altitude data now
 	{ simLatitude,          33.15,  3.0 },	// latitude of Escondido
 	{ simLongitude,       -117.15,  3.0 },	// longitude of Escondido
+	{ simTimestamp,          -0.1,  3.0 },  // recent timestamp, 100ms ago
 	
 	// improve accuracy as we acquire GPS satellites
 	{ simHorizontalAccuracy,  300, 20.0 },	// Got a poor location via GPS
@@ -220,11 +218,11 @@ static const SimStateUpdateType simStateUpdates[] = {
 		BOOL meetsDistanceFilter = self.distanceFilter == kCLDistanceFilterNone;
 		
 		if (!meetsDistanceFilter) {
-			if (oldLoc.horizontalAccuracy < 0) {
-				// previous location was not valid, filter is met if valid now
+			if (oldLoc==nil || oldLoc.horizontalAccuracy < 0) {
+				// old location is not valid, filter is met if valid now
 				meetsDistanceFilter = isValid;
 				
-			} if (isValid) {
+			} else if (isValid) {
 				// compute distance from last location
 				CLLocationDistance distance = [newLoc distanceFromLocation:oldLoc];
 				meetsDistanceFilter = distance >= self.distanceFilter;
