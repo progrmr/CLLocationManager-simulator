@@ -3,7 +3,24 @@
 //
 //  Created by Gary Morris on 6/26/10.
 //
-//  Copyright 2010 Gary A. Morris. All rights reserved.
+//-----------------------------------------------------------------------------
+//
+//  Copyright 2010 Gary A. Morris.  http://mggm.net
+//
+//  This file is part of CLLocationManager_sim.
+//
+//  CLLocationManager_sim is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU Lesser General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  CLLocationManager_sim is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Lesser General Public License for more details.
+//  
+//  You should have received a copy of the GNU Lesser General Public License
+//  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 //-----------------------------------------------------------------------------
 
 #import "CLLocationManager_sim.h"
