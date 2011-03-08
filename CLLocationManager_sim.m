@@ -3,9 +3,10 @@
 //
 //  Created by Gary Morris on 6/26/10.
 //
+//  Added spead and heading on 3/7/11 to simulate motion.
 //-----------------------------------------------------------------------------
 //
-//  Copyright 2010 Gary A. Morris.  http://mggm.net
+//  Copyright 2011 Gary A. Morris.  http://mggm.net
 //
 //  This file is part of CLLocationManager_sim.
 //
@@ -24,7 +25,7 @@
 //-----------------------------------------------------------------------------
 
 #import "CLLocationManager_sim.h"
-
+#import "UtilitiesGeo.h"
 
 @implementation CLLocationManager_sim
 
@@ -38,12 +39,14 @@ typedef struct {
 } SimStateUpdateType;
 
 enum { ACCURACY_INVALID = -1 };			// indicates invalid data
-const double SIM_UPDATE_PERIOD = 1.0;	// use to set the timer interval
+
+#define SIM_UPDATE_PERIOD (1.0)
+#define SECS_PER_HR	      (3600)
 
 // SIM_SCENARIO selects a set of simulator command to control how is behaves
 // This is a compile time flag.  It would be nice to read commands from a file
 // but that's not implemented yet.
-#define SIM_SCENARIO 2
+#define SIM_SCENARIO 4
 
 static const SimStateUpdateType simStateUpdates[] = {
 #if SIM_SCENARIO==0
@@ -92,21 +95,73 @@ static const SimStateUpdateType simStateUpdates[] = {
 	{ simTimestamp,          -0.1,  3.0 },  // recent timestamp, 100ms ago
 	
 	// improve accuracy as we acquire GPS satellites
-	{ simHorizontalAccuracy,  300, 20.0 },	// Got a poor location via GPS
-	{ simLatitude,          33.11, 20.0 },	// latitude of Escondido
-	{ simLongitude,       -117.11, 20.0 },	// longitude of Escondido
+	{ simHorizontalAccuracy,  300, 10.0 },	// Got a poor location via GPS
+	{ simLatitude,           33.1, 10.0 },	// latitude of Escondido
+	{ simLongitude,        -117.1, 10.0 },	// longitude of Escondido
 	
 	// add vertical position as we acquired 3D GPS position
-	{ simLatitude,           33.1, 30.0 },	// latitude of Escondido
-	{ simLongitude,        -117.1, 30.0 },	// longitude of Escondido
-	{ simHorizontalAccuracy,   30, 30.0 },	// Better
-	{ simVerticalAccuracy,     30, 30.0 },	// Have altitude now
-	{ simAltitude,            250, 30.0 },	// Escondido altitude
+	{ simLatitude,          33.11, 20.0 },	// latitude of Escondido
+	{ simLongitude,       -117.11, 20.0 },	// longitude of Escondido
+	{ simHorizontalAccuracy,   30, 20.0 },	// Better
+	{ simVerticalAccuracy,     30, 20.0 },	// Have altitude now
+	{ simAltitude,            250, 20.0 },	// Escondido altitude
 	
 	// finally, best accuracy
-	{ simHorizontalAccuracy,   10, 50.0 },
+	{ simLatitude,         33.111, 30.0 },	// latitude of Escondido
+	{ simLongitude,      -117.111, 30.0 },	// longitude of Escondido
+	{ simHorizontalAccuracy,   10, 30.0 },
+	
+	{ simLatitude,         33.112, 40.0 },	// latitude of Escondido
+	{ simLongitude,      -117.112, 40.0 },	// longitude of Escondido
+	{ simHorizontalAccuracy,    7, 40.0 },
+	
+#elif SIM_SCENARIO==3
+	// top left quadrant from Nordahl Station.
+	{ simLatitude,      33.142582,  0.0 },	// TOP LEFT QUAD
+	{ simLongitude,   -117.126274,  0.0 },
+	{ simHorizontalAccuracy,   10,  0.0 },	// best GPS accuracy
+	{ simTimestamp,          -0.1,  0.0 },  // recent timestamp, 100ms ago
+	
+	{ simLatitude,      33.133167,  5.0 },
+	{ simLongitude,   -117.109022,  5.0 },	// TOP RIGHT QUAD
+
+	{ simLatitude,      33.116634, 10.0 },
+	{ simLongitude,   -117.119236, 10.0 },	// BOTTOM RIGHT QUAD
+	
+	{ simLatitude,      33.125045, 15.0 },
+	{ simLongitude,   -117.137346, 15.0 },	// BOTTOM LEFT QUAD
+	
+	{ simLatitude,      33.121379, 20.0 },	// TOP RIGHT QUAD from Escondido Stn
+	{ simLongitude,   -117.075634, 20.0 },	
+
+	{ simLatitude,      33.104844, 25.0 },	// BOTTOM RIGHT QUAD from Escondido Stn
+	{ simLongitude,   -117.085333, 25.0 },
+	
+#elif SIM_SCENARIO==4
+	// Starting at Escondido Station fly NW directly to Oceanside station
+	{ simHorizontalAccuracy,    5,  0.0 },	// best GPS accuracy
+	{ simTimestamp,          -0.1,  0.0 },  // recent timestamp, 100ms ago
+	
+	{ simLatitude,       33.118600, 0.0 },	// Escondido Sprinter Station
+	{ simLongitude,    -117.092100, 0.0 },	
+
+	{ simSpeed,				   300, 0.0 },	// speed in knots
+	{ simHeading,		    286.92, 0.0 },	// heading
+	
+#elif SIM_SCENARIO==5
+	// Starting at Oceanside Station fly SE directly to Escondido station
+	{ simHorizontalAccuracy,    5,  0.0 },	// best GPS accuracy
+	{ simTimestamp,          -0.1,  0.0 },  // recent timestamp, 100ms ago
+	
+	{ simLatitude,    33.191363992, 0.0 },	// Oceanside Sprinter Station
+	{ simLongitude, -117.378629744, 0.0 },	
+	
+	{ simSpeed,				  300, 10.0 },	// speed in knots
+	{ simHeading,		    106.7, 10.0 },	// heading degrees
 	
 #else
+,
+
 #error Need to provide simulation data
 #endif
 };	
@@ -176,6 +231,26 @@ static const SimStateUpdateType simStateUpdates[] = {
 }
 
 //---------------------------------------------------------------------
+// compute next lat/lon coordinates given speed and bearing
+// from previous lat/lon location
+//---------------------------------------------------------------------
+-(CLLocationCoordinate2D)calcLocationFromStartLat:(double)lat1
+										StartLong:(double)lon1
+								   BearingDegrees:(double)bearingDegrees
+									   SpeedKnots:(double)knots
+										  Seconds:(double)seconds
+{
+	double distanceNM = knots * (seconds / SECS_PER_HR);
+	double distanceM = distanceNM * NM_TO_METERS_FACTOR;
+	CLLocationCoordinate2D result;
+	
+	destCoordsInDegrees(lat1, lon1, 
+						distanceM, bearingDegrees, 
+						&result.latitude, &result.longitude);
+	return result;
+}
+
+//---------------------------------------------------------------------
 // updateSimState - call periodically to update simulator state,
 //    processes the next state updates if it is time for them.
 //    returns BOOL which indicates if location changed
@@ -187,6 +262,18 @@ static const SimStateUpdateType simStateUpdates[] = {
 	BOOL locationChanged = NO;
 	BOOL done = nextUpdate >= nUpdates;
 	
+	if (simState[simSpeed] != 0) {
+		// compute new latitude and longitude
+		CLLocationCoordinate2D newLoc = [self calcLocationFromStartLat:simState[simLatitude]
+															StartLong:simState[simLongitude]
+														BearingDegrees:simState[simHeading]
+															SpeedKnots:simState[simSpeed]
+															   Seconds:SIM_UPDATE_PERIOD];
+		simState[simLatitude]  = newLoc.latitude;
+		simState[simLongitude] = newLoc.longitude;
+		locationChanged = YES;
+	}
+	
 	while (!done && simStateUpdates[nextUpdate].time <= simTime) {
 		// perform the sim state data update, it's time has come
 		simState[simStateUpdates[nextUpdate].state] = simStateUpdates[nextUpdate].data;
@@ -194,8 +281,9 @@ static const SimStateUpdateType simStateUpdates[] = {
 		done = ++nextUpdate >= nUpdates;
 	}
 
-	if (done) {
-		// no more simulator commands
+	// are we done?
+	if (done && simState[simSpeed]==0) {
+		// no more simulator commands, no more motion
 		[simTimer invalidate];
 		simTimer = nil;
 	}
@@ -225,7 +313,8 @@ static const SimStateUpdateType simStateUpdates[] = {
 									 timestamp:timestamp];
 	
 	// call the delegate with the new location
-	if (simDelegate && [simDelegate respondsToSelector:@selector(locationManager:didUpdateToLocation:fromLocation:)])
+	if (simDelegate && 
+		[simDelegate respondsToSelector:@selector(locationManager:didUpdateToLocation:fromLocation:)])
 	{
 		//---------------------------
 		// Apply distanceFilter

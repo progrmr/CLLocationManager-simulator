@@ -10,9 +10,10 @@
 //  you get only the original unchanged functionality of the CLLocationManager.
 //
 //  Created by Gary A. Morris on 6/26/10.
+//  Added spead and heading on 3/7/11 to simulate motion.
 //-----------------------------------------------------------------------------
 //
-//  Copyright 2010 Gary A. Morris.  http://mggm.net
+//  Copyright 2011 Gary A. Morris.  http://mggm.net
 //
 //  This file is part of CLLocationManager_sim.
 //
@@ -33,7 +34,9 @@
 #import <CoreLocation/CoreLocation.h>
 
 #if TARGET_IPHONE_SIMULATOR
-typedef enum { simLatitude, simLongitude, simAltitude, simTimestamp, simHorizontalAccuracy, simVerticalAccuracy, N_STATE_DATA } SimStateType;
+typedef enum { simLatitude, simLongitude, simAltitude, 
+	simTimestamp, simHorizontalAccuracy, simVerticalAccuracy, 
+	simHeading, simSpeed, N_STATE_DATA } SimStateType;
 
 @interface CLLocationManager_sim : CLLocationManager <CLLocationManagerDelegate>
 {
