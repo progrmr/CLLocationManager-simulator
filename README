@@ -1,6 +1,10 @@
-CLLocationManager_sim is a subclass of CLLocationManager from the iphone SDK 4.0.  This subclass provides a simulation of location services when running on the iPhone Simulator on MacOSX.  The iPHone Simulator does not provide any complex emulation of a GPS on the iPhone, it just reports a fixed location (Cupertino) and that's it.  This simulator can provide a timed sequence of locations with varying accuracy, position and altitude by using preprogrammed scenarios.
+REVISED: 2011-03-17 -- my recent update added ability to for simulator to simulation motion.  Allowing you to also specify speed (knots) and heading (in degrees) and the simulator will report position simulating that velocity starting from the position specified.   This new version also requires some support source code in my SDK_Utilities repository to do spherical geometry calculations, UtilitiesGeo.h/.c, located at: 
 
-When compiled for a real iOS device the subclass's simulation code is removed and you get all the original functionality from the SDK's CLLocationManager class. There is no need to remove the subclass from your code unless you prefer.
+    http://github.com/progrmr/SDK_Utilities/tree/master/Utils
+
+CLLocationManager_sim is a subclass of CLLocationManager from the iphone SDK 4.0.  This subclass provides a simulation of location services when running on the iPhone Simulator on MacOSX.  The XCode iPhone Simulator does not provide any complex emulation of a GPS on the iPhone, it just reports a fixed location (Cupertino) and that's it (when it works).  This simulator can provide a timed sequence of locations with varying accuracy, position, velocity, and altitude by using preprogrammed scenarios for testing your apps.
+
+When compiled for a real iOS device the subclass's simulation code is removed using conditional compilation and you get all the original functionality from the SDK's CLLocationManager class. There is no need to remove the subclass from your code unless you prefer.
 
 The usual way to use this simulator is to replace your alloc/init calls as follows:
 
@@ -14,4 +18,5 @@ gets replaced by:
 
   locationManager = [[CLLocationManager_sim alloc] init];
 
-That's it, now use the locationManager in the usual way.
+That's it, now use the locationManager in the usual way.  To program a specific location, accuracy, velocity into the simulator change one of the scenarios located in CLLocationManager_sim.m class near the top of the file.  There are several sample scenarios in there that I use for testing some of my apps.
+
