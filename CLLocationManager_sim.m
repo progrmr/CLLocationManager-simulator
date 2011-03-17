@@ -145,7 +145,7 @@ static const SimStateUpdateType simStateUpdates[] = {
 	{ simLatitude,       33.118600, 0.0 },	// Escondido Sprinter Station
 	{ simLongitude,    -117.092100, 0.0 },	
 
-	{ simSpeed,				   300, 0.0 },	// speed in knots
+	{ simSpeed,				   200, 0.0 },	// speed in knots
 	{ simHeading,		    286.92, 0.0 },	// heading
 	
 #elif SIM_SCENARIO==5
@@ -156,7 +156,7 @@ static const SimStateUpdateType simStateUpdates[] = {
 	{ simLatitude,    33.191363992, 0.0 },	// Oceanside Sprinter Station
 	{ simLongitude, -117.378629744, 0.0 },	
 	
-	{ simSpeed,				  300, 10.0 },	// speed in knots
+	{ simSpeed,				  500, 10.0 },	// speed in knots
 	{ simHeading,		    106.7, 10.0 },	// heading degrees
 	
 #else
