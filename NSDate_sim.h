@@ -54,6 +54,6 @@
 //----------------------------------------------------------------------------
 -(void)setDateYear:(int)year Month:(int)month Day:(int)day Hour:(int)hour Minute:(int)min Second:(int)sec;
 
-@property (assign, nonatomic) float clockSpeed;     // set the clock speed factor
+@property (nonatomic, assign) float clockSpeed;     // set the clock speed factor
 
 @end
