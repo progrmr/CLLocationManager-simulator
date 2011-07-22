@@ -54,8 +54,8 @@ typedef enum { simLatitude, simLongitude, simAltitude,
 }
 
 // override CLLocationManager's properties
-@property (assign, nonatomic) id<CLLocationManagerDelegate> delegate;
-@property (readonly, nonatomic) CLLocation* location;
+@property (nonatomic, assign) id<CLLocationManagerDelegate> delegate;
+@property (nonatomic, readonly) CLLocation* location;
 
 #else
 @interface CLLocationManager_sim : CLLocationManager { }
